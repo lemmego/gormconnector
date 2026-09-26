@@ -9,6 +9,7 @@ import (
 	"github.com/glebarez/sqlite"
 	"github.com/lemmego/api/app"
 	"github.com/lemmego/api/config"
+	"github.com/lemmego/api/db"
 	"github.com/lemmego/gpa"
 	"github.com/lemmego/gpagorm"
 	"gorm.io/driver/mysql"
@@ -25,6 +26,8 @@ type Provider struct {
 	gormConfig *gorm.Config
 	appConfig  config.Configuration
 	sqlDB      *sql.DB
+	connName   string
+	dialect    db.Dialect
 }
 
 func (g *Provider) WithGPAConfig(config gpa.Config) *Provider {
@@ -44,13 +47,21 @@ func (g *Provider) AddCommands() []app.Command {
 	}
 }
 
-func (g *Provider) GetSQLDb() *sql.DB {
+// SQLDB returns the underlying connection. It is half of db.Connection, and
+// is spelled the same way in every connector so the seam has one name.
+func (g *Provider) SQLDB() *sql.DB {
 	return g.sqlDB
 }
 
+// Dialect reports the SQL flavour of the open connection.
+func (g *Provider) Dialect() db.Dialect { return g.dialect }
+
+// Name reports which sql.connections key this connection was built from.
+func (g *Provider) Name() string { return g.connName }
+
 func (g *Provider) Provide(a app.App) error {
 	g.appConfig = a.Config()
-	dbConfig := sqlConfig()
+	dbConfig, connName := sqlConfig()
 	if g.config.Host != "" {
 		dbConfig = g.config
 	}
@@ -64,18 +75,26 @@ func (g *Provider) Provide(a app.App) error {
 		gpa.RegisterDefault(provider)
 		a.AddService(provider)
 	} else {
-		db, err := NewGormConnection(dbConfig)
+		gormDB, err := NewGormConnection(dbConfig)
 		if err != nil {
 			panic(err)
 		}
-		sqlDB, err := db.DB()
+		sqlDB, err := gormDB.DB()
 		if err != nil {
 			panic(err)
 		}
 		g.sqlDB = sqlDB
-		a.AddService(db)
+		a.AddService(gormDB)
 	}
 
+	g.connName = connName
+	g.dialect, _ = db.ParseDialect(dbConfig.Driver)
+
+	// Outside the branch above on purpose. The two arms register mutually
+	// exclusive products — a *gpagorm.Provider or a *gorm.DB — so before the
+	// seam existed there was no type a framework package could ask for that
+	// was present in both modes.
+	db.Register(a, g)
 	return nil
 }
 
@@ -161,7 +180,10 @@ func NewGormConnection(config gpa.Config) (*gorm.DB, error) {
 	return db, nil
 }
 
-func sqlConfig(connName ...string) gpa.Config {
+// sqlConfig also returns the connection name it resolved, which the seam
+// reports so a package reading connection-scoped configuration knows which
+// block to read.
+func sqlConfig(connName ...string) (gpa.Config, string) {
 	name := "default"
 	if len(connName) > 0 && connName[0] != "" {
 		name = connName[0]
@@ -205,7 +227,7 @@ func sqlConfig(connName ...string) gpa.Config {
 		}
 	}
 
-	return dbConfig
+	return dbConfig, defaultConnection
 }
 
 // =====================================

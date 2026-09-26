@@ -5,7 +5,7 @@ go 1.27
 require (
 	github.com/charmbracelet/huh v1.0.0
 	github.com/glebarez/sqlite v1.11.0
-	github.com/lemmego/api v0.1.34
+	github.com/lemmego/api v0.1.37
 	github.com/lemmego/cli v0.1.21
 	github.com/lemmego/fsys v0.1.0
 	github.com/lemmego/gpa v0.1.1
