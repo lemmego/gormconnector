@@ -167,13 +167,21 @@ func sqlConfig(connName ...string) gpa.Config {
 		name = connName[0]
 	}
 
-	defaultConnection := config.Get(fmt.Sprintf("sql.%s", name))
-	connection := config.Get(fmt.Sprintf("sql.connections.%s", defaultConnection)).(config.M)
+	defaultConnection, _ := config.Get(fmt.Sprintf("sql.%s", name)).(string)
+	if defaultConnection == "" {
+		panic(fmt.Sprintf("%s: sql.%s is not configured", "gormconnector", name))
+	}
+
+	connection, ok := config.Get(fmt.Sprintf("sql.connections.%s", defaultConnection)).(config.M)
+	if !ok {
+		panic(fmt.Sprintf("%s: sql.connections.%s is not configured", "gormconnector", defaultConnection))
+	}
+
 	driver := connection.String("driver")
 	database := connection.String("database")
 
 	if database == "" || driver == "" {
-		panic("database: database and driver must be present")
+		panic(fmt.Sprintf("%s: sql.connections.%s needs a driver and a database", "gormconnector", defaultConnection))
 	}
 
 	dbConfig := gpa.Config{
@@ -181,12 +189,20 @@ func sqlConfig(connName ...string) gpa.Config {
 		Database: database,
 	}
 
-	if driver != "sqlite" {
-		dbConfig.Host = config.Get(fmt.Sprintf("sql.connections.%s.host", defaultConnection)).(string)
-		dbConfig.Port = config.Get(fmt.Sprintf("sql.connections.%s.port", defaultConnection)).(int)
-		dbConfig.Username = config.Get(fmt.Sprintf("sql.connections.%s.user", defaultConnection)).(string)
-		dbConfig.Password = config.Get(fmt.Sprintf("sql.connections.%s.password", defaultConnection)).(string)
-		dbConfig.Options = config.Get(fmt.Sprintf("sql.connections.%s.options", defaultConnection)).(config.M)
+	// sqlite3 is an accepted alias — SupportedDrivers lists it — so it must
+	// skip the host and port lookup the same way sqlite does.
+	if driver != "sqlite" && driver != "sqlite3" {
+		// Read through the connection map rather than asserting each key.
+		// options in particular is optional and is not written by the
+		// scaffold at all, so asserting it made every mysql or postgres
+		// project panic at boot.
+		dbConfig.Host = connection.String("host")
+		dbConfig.Port = connection.Int("port")
+		dbConfig.Username = connection.String("user")
+		dbConfig.Password = connection.String("password")
+		if options, ok := connection["options"].(config.M); ok {
+			dbConfig.Options = options
+		}
 	}
 
 	return dbConfig
