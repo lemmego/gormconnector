@@ -5,11 +5,11 @@ go 1.27
 require (
 	github.com/charmbracelet/huh v1.0.0
 	github.com/glebarez/sqlite v1.11.0
-	github.com/lemmego/api v0.6.0
-	github.com/lemmego/cli v0.1.21
-	github.com/lemmego/fsys v0.1.0
-	github.com/lemmego/gpa v0.1.1
-	github.com/lemmego/gpagorm v0.1.4
+	github.com/lemmego/api v0.6.3
+	github.com/lemmego/cli v0.4.1
+	github.com/lemmego/fsys v0.1.1
+	github.com/lemmego/gpa v0.1.3
+	github.com/lemmego/gpagorm v0.1.9
 	github.com/spf13/cobra v1.8.1
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/driver/postgres v1.6.0
@@ -57,7 +57,6 @@ require (
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-sql-driver/mysql v1.9.3 // indirect
-	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -75,7 +74,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
-	github.com/lemmego/migration v0.1.24 // indirect
+	github.com/lemmego/migration v0.2.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
