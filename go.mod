@@ -5,7 +5,7 @@ go 1.27
 require (
 	github.com/charmbracelet/huh v1.0.0
 	github.com/glebarez/sqlite v1.11.0
-	github.com/lemmego/api v0.13.0
+	github.com/lemmego/api v0.14.0
 	github.com/lemmego/cli v0.4.1
 	github.com/lemmego/fsys v0.2.0
 	github.com/lemmego/gpa v0.1.3
@@ -49,8 +49,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
-	github.com/lemmego/migration v0.2.0 // indirect
-	github.com/lib/pq v1.10.9 // indirect
+	github.com/lemmego/migration v0.6.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
